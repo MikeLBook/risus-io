@@ -11,16 +11,11 @@ import {
 interface CardProps {
   title: string
   description: string
+  leftJustify?: boolean
   children: React.ReactNode
-  onClick?: () => void
-  className?: string
 }
 
-export default function GameCard({ title, description, children, onClick, className }: CardProps) {
-  const handleClick = () => {
-    if (onClick) onClick()
-  }
-
+export default function GameCard({ title, description, leftJustify, children }: CardProps) {
   return (
     <Card
       style={{
@@ -29,12 +24,15 @@ export default function GameCard({ title, description, children, onClick, classN
         borderColor: "white",
         backgroundColor: "#333",
       }}
-      className={`bg-grey ${className ?? ""}`}
-      onClick={handleClick}
+      className="bg-grey"
     >
       <CardHeader>
-        <CardTitle style={{ color: "ivory" }}>{title}</CardTitle>
-        <CardDescription style={{ color: "ivory" }}>{description}</CardDescription>
+        <CardTitle style={{ color: "ivory", textAlign: leftJustify ? "start" : "center" }}>
+          {title}
+        </CardTitle>
+        <CardDescription style={{ color: "ivory", textAlign: leftJustify ? "start" : "center" }}>
+          {description}
+        </CardDescription>
       </CardHeader>
       <CardContent style={{ color: "ivory" }}>{children}</CardContent>
     </Card>

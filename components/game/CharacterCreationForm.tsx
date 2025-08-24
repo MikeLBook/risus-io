@@ -31,6 +31,10 @@ const ClicheSchema = z.object({
     .trim()
     .min(5, { error: "Cliche name must be at least 5 characters" })
     .max(50, { error: "Cliche name should not exceed 50 characters" }),
+  description: z
+    .string()
+    .trim()
+    .min(5, { error: "Cliche description must be at least 5 characters" }),
   dice: z.int().gte(1).lte(4),
   injuries: z.array(InjurySchema).length(0),
   isPrimary: z.boolean(),
@@ -40,6 +44,10 @@ const CharacterSchema = z
   .object({
     id: z.uuid({ error: "Character ID not found (application error)" }),
     userId: z.uuid({ error: "User ID not found (login error)" }),
+    creatorName: z
+      .string()
+      .trim()
+      .min(5, { error: "Creator name must be at least 5 character (application error)" }),
     name: z.string().trim().min(5, { error: "Character name must be at least 5 characters" }),
     description: z.string().trim().min(10, { error: "Description must be at least 10 characters" }),
     cliches: z.array(ClicheSchema).min(1, { error: "Character must have at least 1 cliche" }),
@@ -118,6 +126,7 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
         hookText: hasHook ? hookText : "",
         taleText: hasTale ? taleText : "",
         userId: uuidv4(), // authenticated user id
+        creatorName: "Juy", // authenticated user name
         deceased: false,
         archived: false,
         createdAt: time,
@@ -152,7 +161,14 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
     e.preventDefault()
     setCliches((prev) => {
       const clonedCliches = structuredClone(prev)
-      clonedCliches.push({ id: uuidv4(), name: "", dice: 1, injuries: [], isPrimary: false })
+      clonedCliches.push({
+        id: uuidv4(),
+        name: "",
+        description: "",
+        dice: 1,
+        injuries: [],
+        isPrimary: false,
+      })
       return clonedCliches
     })
   }
@@ -160,6 +176,12 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
   const onClicheNameChange = (id: string, value: string) => {
     setCliches((prev) =>
       prev.map((cliche) => (cliche.id === id ? { ...cliche, name: value } : cliche))
+    )
+  }
+
+  const onClicheDescriptionChange = (id: string, value: string) => {
+    setCliches((prev) =>
+      prev.map((cliche) => (cliche.id === id ? { ...cliche, description: value } : cliche))
     )
   }
 
@@ -269,6 +291,13 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
                     value={cliche.name}
                     onChange={(e) => onClicheNameChange(cliche.id, e.target.value)}
                     placeholder="Name your cliche"
+                  />
+                  <Label htmlFor={`cliche-${cliche.id}-description`}>Description</Label>
+                  <Input
+                    id={`cliche-${cliche.id}-description`}
+                    value={cliche.description}
+                    onChange={(e) => onClicheDescriptionChange(cliche.id, e.target.value)}
+                    placeholder="Provide a description"
                   />
                   <Label htmlFor={`cliche-${cliche.id}-dice`}>Dice</Label>
                   <Input

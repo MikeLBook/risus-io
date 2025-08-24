@@ -8,7 +8,7 @@ import "./landing-page.css"
 import CharacterCard from "@/components/game/CharacterCard"
 import GameCard from "@/components/game/GameCard"
 import Image from "next/image"
-
+import CharacterSheet from "@/components/game/CharacterSheet"
 import CharacterCreationForm from "@/components/game/CharacterCreationForm"
 
 export default function Home() {
@@ -34,7 +34,6 @@ export default function Home() {
               <GameCard
                 title="Create New Character"
                 description="A character can only be part of one campaign at a time"
-                className="cursor-pointer"
               >
                 <div className="flex-column-component flex-column-centered">
                   <Image
@@ -47,7 +46,9 @@ export default function Home() {
               </GameCard>
             </CharacterCreationForm>
             {characters.map((char, idx) => (
-              <CharacterCard key={char.id + idx} character={char} />
+              <CharacterSheet key={char.id + idx} character={char}>
+                <CharacterCard character={char} />
+              </CharacterSheet>
             ))}
           </div>
         </div>

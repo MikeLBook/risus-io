@@ -1,6 +1,7 @@
 export interface Character {
   id: string
   userId: string
+  creatorName: string
   campaignId?: string
   name: string
   description: string
@@ -20,6 +21,7 @@ export interface Character {
 export interface Cliche {
   id: string
   name: string
+  description: string
   dice: number
   injuries: Injury[]
   isPrimary: boolean
