@@ -126,19 +126,22 @@
   color: ivory;
 }
 
-.flex-column-page {
+.flex-component {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
-  min-width: 100vw;
-  min-height: 100vh;
 }
 
 .flex-column-component {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
   min-width: 100%;
+}
+
+.flex-column-centered {
+  align-items: center;
+}
+
+.cursor-pointer {
+  cursor: pointer;
 }

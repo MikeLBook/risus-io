@@ -6,7 +6,7 @@ import { useCharacters } from "@/contexts/charactersContext"
 import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar"
 import "./landing-page.css"
 import CharacterCard from "@/components/game/CharacterCard"
-import Card from "@/components/game/Card"
+import GameCard from "@/components/game/GameCard"
 import Image from "next/image"
 
 import CharacterCreationForm from "@/components/game/CharacterCreationForm"
@@ -31,11 +31,12 @@ export default function Home() {
           <strong style={{ fontSize: "32px" }}>Characters</strong>
           <div className="character-cards-container">
             <CharacterCreationForm>
-              <Card
+              <GameCard
                 title="Create New Character"
                 description="A character can only be part of one campaign at a time"
+                className="cursor-pointer"
               >
-                <div className="flex-column-component">
+                <div className="flex-column-component flex-column-centered">
                   <Image
                     src="/images/circle-plus.svg"
                     alt="Circle-Plus"
@@ -44,7 +45,7 @@ export default function Home() {
                     color="white"
                   ></Image>
                 </div>
-              </Card>
+              </GameCard>
             </CharacterCreationForm>
             {characters.map((char, idx) => (
               <CharacterCard key={char.id + idx} character={char} />

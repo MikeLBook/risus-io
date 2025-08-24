@@ -13,9 +13,10 @@ interface CardProps {
   description: string
   children: React.ReactNode
   onClick?: () => void
+  className?: string
 }
 
-export default function CardWrapper({ title, description, children, onClick }: CardProps) {
+export default function GameCard({ title, description, children, onClick, className }: CardProps) {
   const handleClick = () => {
     if (onClick) onClick()
   }
@@ -27,9 +28,8 @@ export default function CardWrapper({ title, description, children, onClick }: C
         height: "200px",
         borderColor: "white",
         backgroundColor: "#333",
-        cursor: onClick ? "pointer" : "auto",
       }}
-      className="bg-grey"
+      className={`bg-grey ${className ?? ""}`}
       onClick={handleClick}
     >
       <CardHeader>

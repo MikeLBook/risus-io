@@ -4,7 +4,6 @@ export interface Character {
   campaignId?: string
   name: string
   description: string
-  totalDice: number
   cliches: Cliche[]
   luckyShots: number
   hasHook: boolean

@@ -1,22 +1,173 @@
-import { FormEvent } from "react"
+import { FormEvent, useState } from "react"
 import { Button } from "../ui/button"
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogClose,
 } from "@/components/ui/dialog"
+import * as z from "zod"
+import { Character, Cliche } from "@/models/Character"
+import { toast } from "sonner"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { v4 as uuidv4 } from "uuid"
+import { useCharacters } from "@/contexts/charactersContext"
+
+const ClicheSchema = z.object({
+  id: z.uuid(),
+  name: z
+    .string()
+    .trim()
+    .min(5, { error: "Cliche name must be at least 5 characters" })
+    .max(50, { error: "Cliche name should not exceed 50 characters" }),
+  dice: z.int().gte(1).lte(4),
+  injury: z.int().gte(0).lte(0),
+  isPrimary: z.boolean(),
+})
+
+const CharacterSchema = z
+  .object({
+    id: z.uuid({ error: "Character ID not found (application error)" }),
+    userId: z.uuid({ error: "User ID not found (login error)" }),
+    name: z.string().trim().min(5, { error: "Character name must be at least 5 characters" }),
+    description: z.string().trim().min(10, { error: "Description must be at least 10 characters" }),
+    cliches: z.array(ClicheSchema).min(1, { error: "Character must have at least 1 cliche" }),
+    luckyShots: z
+      .int()
+      .multipleOf(3, { error: "Lucky Shots should be a multiple of 3 (application error)" }),
+    hasHook: z.boolean(),
+    hookText: z.string().trim(),
+    hasTale: z.boolean(),
+    taleText: z.string().trim(),
+    deceased: z.boolean(),
+    archived: z.boolean(),
+    createdAt: z.int().positive(),
+    updatedAt: z.int().positive(),
+  })
+  .refine((data) => (data.hasHook ? data.hookText.length > 10 : true), {
+    error: "Hook text must be at least 10 characters",
+    path: ["hasHook", "hookText"],
+  })
+  .refine((data) => (data.hasTale ? data.taleText.length > 30 : true), {
+    error: "Tale text must be at least 30 character",
+    path: ["hasTale", "taleText"],
+  })
+  .refine((data) => data.cliches.reduce((acc, cliche) => (cliche.isPrimary ? acc + 1 : acc), 0), {
+    error: "Must have 1 primary cliche",
+  })
+  .refine(
+    (data) => {
+      let diceRemaining = 10
+      if (data.hasHook) diceRemaining += 1
+      if (data.hasTale) diceRemaining += 1
+      if (data.luckyShots > 0) {
+        const usedDice = data.luckyShots / 3
+        diceRemaining -= usedDice
+      }
+      const usedDice = data.cliches.reduce((acc, cliche) => acc + cliche.dice, 0)
+      diceRemaining -= usedDice
+      return diceRemaining === 0
+    },
+    { error: "Invalid Dice Allotment", path: ["cliches", "luckyShots"] }
+  )
 
 interface CharacterCreationProps {
   children: React.ReactNode
 }
 export default function CharacterCreationForm({ children }: CharacterCreationProps) {
+  const [name, setName] = useState("")
+  const [description, setDescription] = useState("")
+  const [cliches, setCliches] = useState<Cliche[]>([])
+  const [luckyShots, setLuckyShots] = useState(0)
+  const [hasHook, setHasHook] = useState(false)
+  const [hookText, setHookText] = useState("")
+  const [hasTale, setHasTale] = useState(false)
+  const [taleText, setTaleText] = useState("")
+
+  const { addCharacter } = useCharacters()
+
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    console.log("submitting")
+    try {
+      const time = Date.now()
+      const newCharacter: Character = {
+        id: uuidv4(),
+        name,
+        description,
+        cliches,
+        luckyShots,
+        hasHook,
+        hookText,
+        hasTale,
+        taleText,
+        userId: uuidv4(),
+        deceased: false,
+        archived: false,
+        createdAt: time,
+        updatedAt: time,
+      }
+
+      const verifiedCharacter = CharacterSchema.parse(newCharacter)
+      addCharacter(verifiedCharacter)
+      resetCharacter()
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast(error.issues[0].message)
+      } else {
+        console.error(error)
+      }
+    }
   }
+
+  const resetCharacter = () => {
+    setName("")
+    setDescription("")
+    setCliches([])
+    setLuckyShots(0)
+    setHasHook(false)
+    setHookText("")
+    setHasTale(false)
+    setTaleText("")
+  }
+
+  const addCliche = (e: any) => {
+    e.preventDefault()
+    setCliches((prev) => {
+      const clonedCliches = structuredClone(prev)
+      clonedCliches.push({ id: uuidv4(), name: "", dice: 1, injury: 0, isPrimary: false })
+      return clonedCliches
+    })
+  }
+
+  const onClicheNameChange = (id: string, value: string) => {
+    setCliches((prev) =>
+      prev.map((cliche) => (cliche.id === id ? { ...cliche, name: value } : cliche))
+    )
+  }
+
+  const onClicheDiceChange = (id: string, value: string) => {
+    setCliches((prev) =>
+      prev.map((cliche) => (cliche.id === id ? { ...cliche, dice: parseInt(value) } : cliche))
+    )
+  }
+
+  const onClichePrimaryChange = (id: string, checked: boolean) => {
+    setCliches((prev) =>
+      prev.map((cliche) => (cliche.id === id ? { ...cliche, isPrimary: checked } : cliche))
+    )
+  }
+
+  let totalDice = 10
+  if (hasHook) totalDice += 1
+  if (hasTale) totalDice += 1
+  const diceRemaining =
+    totalDice -
+    cliches.reduce((acc, cliche) => acc + cliche.dice, 0) -
+    (luckyShots > 0 ? luckyShots / 3 : 0)
+
   return (
     <>
       <Dialog>
@@ -24,17 +175,70 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
         <DialogContent className="grey-bg" style={{ minWidth: "50vw" }}>
           <DialogTitle>Character Creation</DialogTitle>
           <DialogDescription className="grey-bg">
-            The character Cliché is the heart of Risus. Clichés are shorthand for a kind of person,
-            implying their skills, background, social role and more. The “character classes” of the
-            oldest RPGs are enduring Clichés: Wizard, Detective, Starpilot, Superspy. You can choose
-            Clichés like those for your character, or devise something more outré, like Ghostly
-            Pirate Cook, Fairy Godmother, Bruce Lee (for a character who does Bruce Lee stuff) or
-            Giant Monster Who Just Wants To Be Loved For His Macrame.
+            <p>
+              The character Cliché is the heart of Risus. Clichés are shorthand for a kind of
+              person, implying their skills, background, social role and more. The “character
+              classes” of the oldest RPGs are enduring Clichés: Wizard, Detective, Starpilot,
+              Superspy. You can choose Clichés like those for your character, or devise something
+              more outré, like Ghostly Pirate Cook, Fairy Godmother, Bruce Lee (for a character who
+              does Bruce Lee stuff) or Giant Monster Who Just Wants To Be Loved For His Macrame.
+            </p>
+            <p className="mt-2">
+              You start with 10 dice to distribute across your chosen cliches. Dice may also be
+              traded for lucky shots. Hooks and Tales give additional dice.
+            </p>
           </DialogDescription>
+          <DialogHeader>Dice Remaining: {diceRemaining}</DialogHeader>
           <form onSubmit={(e) => handleSubmit(e)}>
-            <Button asChild>
-              <input type="submit"></input>
-            </Button>
+            <div className="flex-column-component gap-3">
+              <Label htmlFor="newCharacterName">Name</Label>
+              <Input
+                id="newCharacterName"
+                placeholder="Enter Name..."
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+              <Label htmlFor="newCharacterDescription">Description</Label>
+              <Input
+                id="newCharacterDescription"
+                placeholder="Enter Description..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+              <Label htmlFor="newCharacterCliches">Cliches</Label>
+              {cliches.map((cliche, idx) => (
+                <div key={cliche.id + idx} className="flex-component gap-3 ml-2">
+                  <Label htmlFor={`cliche-${cliche.id}`}>Name</Label>
+                  <Input
+                    id={`cliche-${cliche.id}`}
+                    value={cliche.name}
+                    onChange={(e) => onClicheNameChange(cliche.id, e.target.value)}
+                  />
+                  <Label htmlFor={`cliche-${cliche.id}-dice`}>Dice</Label>
+                  <Input
+                    id={`cliche-${cliche.id}-dice`}
+                    type="number"
+                    min="1"
+                    max="4"
+                    value={cliche.dice}
+                    onChange={(e) => onClicheDiceChange(cliche.id, e.target.value)}
+                  ></Input>
+                  <Label htmlFor={`cliche-${cliche.id}-primary`}>Set Primary</Label>
+                  <Input
+                    id={`cliche-${cliche.id}-primary`}
+                    type="checkbox"
+                    checked={cliche.isPrimary}
+                    onChange={(e) => onClichePrimaryChange(cliche.id, e.target.checked)}
+                  ></Input>
+                </div>
+              ))}
+              <Button onClick={(e) => addCliche(e)} style={{ maxWidth: "15ch" }}>
+                Add Cliche
+              </Button>
+              <Button asChild>
+                <input type="submit"></input>
+              </Button>
+            </div>
           </form>
         </DialogContent>
       </Dialog>
