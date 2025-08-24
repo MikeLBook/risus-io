@@ -21,4 +21,5 @@ export interface Cliche {
   name: string
   dice: number
   injury: number
+  isPrimary: boolean
 }
