@@ -47,7 +47,7 @@ const CharacterSchema = z
     creatorName: z
       .string()
       .trim()
-      .min(5, { error: "Creator name must be at least 5 character (application error)" }),
+      .min(5, { error: "Creator name must be at least 5 characters (application error)" }),
     name: z.string().trim().min(5, { error: "Character name must be at least 5 characters" }),
     description: z.string().trim().min(10, { error: "Description must be at least 10 characters" }),
     cliches: z.array(ClicheSchema).min(1, { error: "Character must have at least 1 cliche" }),
@@ -126,7 +126,7 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
         hookText: hasHook ? hookText : "",
         taleText: hasTale ? taleText : "",
         userId: uuidv4(), // authenticated user id
-        creatorName: "Juy", // authenticated user name
+        creatorName: "Juyvik", // authenticated user name
         deceased: false,
         archived: false,
         createdAt: time,

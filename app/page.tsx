@@ -1,57 +1,64 @@
 "use client"
-
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { useCharacters } from "@/contexts/charactersContext"
-import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar"
-import "./landing-page.css"
-import CharacterCard from "@/components/game/CharacterCard"
-import GameCard from "@/components/game/GameCard"
-import Image from "next/image"
-import CharacterSheet from "@/components/game/CharacterSheet"
-import CharacterCreationForm from "@/components/game/CharacterCreationForm"
+import { useAuth } from "@/hooks/useAuth"
+import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 
 export default function Home() {
-  const { characters } = useCharacters()
+  const { user, loading, signInWithDiscord, signOut } = useAuth()
+  const searchParams = useSearchParams()
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div>Loading auth state...</div>
+      </div>
+    )
+  }
 
   return (
-    <div style={{ display: "flex" }}>
-      <Sidebar>
-        <SidebarHeader className="grey-bg">
-          <strong style={{ fontSize: "large" }}>Game Browser</strong>
-        </SidebarHeader>
-        <SidebarContent className="grey-bg">
-          <Button asChild style={{ marginLeft: "8px", marginRight: "8px" }}>
-            <Link href="/campaigns/1">Join Game</Link>
-          </Button>
-        </SidebarContent>
-      </Sidebar>
-      <div>
-        <div style={{ marginLeft: "64px", marginTop: "8px" }}>
-          <strong style={{ fontSize: "32px" }}>Characters</strong>
-          <div className="character-cards-container">
-            <CharacterCreationForm>
-              <GameCard
-                title="Create New Character"
-                description="A character can only be part of one campaign at a time"
-              >
-                <div className="flex-column-component flex-column-centered">
-                  <Image
-                    src="/images/circle-plus.svg"
-                    alt="Circle-Plus"
-                    width="50"
-                    height="50"
-                  ></Image>
-                </div>
-              </GameCard>
-            </CharacterCreationForm>
-            {characters.map((char, idx) => (
-              <CharacterSheet key={char.id + idx} character={char}>
-                <CharacterCard character={char} />
-              </CharacterSheet>
-            ))}
-          </div>
+    <div className="min-h-screen bg-gray-50 p-8">
+      {/* Debug Info */}
+      <div className="max-w-2xl mx-auto mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded">
+        <h3 className="font-bold mb-2">Debug Info:</h3>
+        <div className="text-sm space-y-1">
+          <div>User: {user ? "✅ Logged in" : "❌ Not logged in"}</div>
+          <div>Loading: {loading ? "⏳ True" : "✅ False"}</div>
+          <div>User Email: {user?.email || "None"}</div>
+          <div>User ID: {user?.id || "None"}</div>
+          <div>URL Error: {searchParams.get("error") || "None"}</div>
+          <div>URL Success: {searchParams.get("success") || "None"}</div>
         </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-md mx-auto">
+        {!user ? (
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h1 className="text-2xl font-bold mb-4">Sign In</h1>
+            <button
+              onClick={signInWithDiscord}
+              className="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg hover:bg-indigo-700"
+            >
+              Sign in with Discord
+            </button>
+          </div>
+        ) : (
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h1 className="text-2xl font-bold mb-4">Welcome!</h1>
+            <p className="mb-4">Email: {user.email}</p>
+            <p className="mb-4">ID: {user.id}</p>
+            {user.user_metadata?.full_name && (
+              <p className="mb-4">Name: {user.user_metadata.full_name}</p>
+            )}
+            <div className="flex-component" style={{ justifyContent: "space-between" }}>
+              <Button asChild>
+                <Link href="/characters">View Characters</Link>
+              </Button>
+              <Button onClick={signOut}>Sign Out</Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
