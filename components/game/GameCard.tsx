@@ -26,7 +26,7 @@ export default function GameCard({ title, description, footer, leftJustify, chil
         backgroundColor: "#333",
         paddingBottom: "0",
       }}
-      className="bg-grey"
+      className="bg-grey cursor-pointer"
     >
       <CardHeader>
         <CardTitle style={{ color: "ivory", textAlign: leftJustify ? "start" : "center" }}>
