@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { useCharacters } from "@/contexts/charactersContext"
+import { useUserCharacters } from "@/contexts/UserCharactersContext"
 import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider } from "@/components/ui/sidebar"
 import "./characters.css"
 import CharacterCard from "@/components/game/CharacterCard"
@@ -11,10 +11,13 @@ import Image from "next/image"
 import CharacterSheet from "@/components/game/CharacterSheet"
 import CharacterCreationForm from "@/components/game/CharacterCreationForm"
 import { useAuth } from "@/hooks/useAuth"
+import { useEffect } from "react"
 
 export default function Characters() {
   const { signOut } = useAuth()
-  const { characters } = useCharacters()
+  const { characters } = useUserCharacters()
+
+  useEffect(() => console.log("component", characters), [characters])
 
   return (
     <SidebarProvider defaultOpen={true}>

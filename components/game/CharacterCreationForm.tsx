@@ -14,10 +14,11 @@ import { toast } from "sonner"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { v4 as uuidv4 } from "uuid"
-import { useCharacters } from "@/contexts/charactersContext"
+import { useUserCharacters } from "@/contexts/UserCharactersContext"
 import Image from "next/image"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Textarea } from "@/components/ui/textarea"
+import { useAuth } from "@/hooks/useAuth"
 
 const InjurySchema = z.object({
   description: z.string().trim(),
@@ -108,7 +109,8 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
   const [taleText, setTaleText] = useState("")
   const [tools, setTools] = useState("")
 
-  const { addCharacter } = useCharacters()
+  const { user } = useAuth()
+  const { addCharacter } = useUserCharacters()
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -125,8 +127,8 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
         tools,
         hookText: hasHook ? hookText : "",
         taleText: hasTale ? taleText : "",
-        userId: uuidv4(), // authenticated user id
-        creatorName: "Juyvik", // authenticated user name
+        userId: user!.id,
+        creatorName: user!.user_metadata.full_name,
         deceased: false,
         archived: false,
         createdAt: time,
