@@ -17,6 +17,7 @@ import { v4 as uuidv4 } from "uuid"
 import { useCharacters } from "@/contexts/charactersContext"
 import Image from "next/image"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Textarea } from "@/components/ui/textarea"
 
 const ClicheSchema = z.object({
   id: z.uuid(),
@@ -53,8 +54,8 @@ const CharacterSchema = z
     error: "Hook text must be at least 10 characters",
     path: ["hasHook", "hookText"],
   })
-  .refine((data) => (data.hasTale ? data.taleText.length > 30 : true), {
-    error: "Tale text must be at least 30 character",
+  .refine((data) => (data.hasTale ? data.taleText.length > 50 : true), {
+    error: "Tale text must be at least 50 character",
     path: ["hasTale", "taleText"],
   })
   .refine(
@@ -105,10 +106,10 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
         cliches,
         luckyShots,
         hasHook,
-        hookText,
         hasTale,
-        taleText,
-        userId: uuidv4(),
+        hookText: hasHook ? hookText : "",
+        taleText: hasTale ? taleText : "",
+        userId: uuidv4(), // authenticated user id
         deceased: false,
         archived: false,
         createdAt: time,
@@ -179,6 +180,11 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
     setHasHook((prev) => !prev)
   }
 
+  const toggleCharacterTale = (e: any) => {
+    e.preventDefault()
+    setHasTale((prev) => !prev)
+  }
+
   let totalDice = 10
   if (hasHook) totalDice += 1
   if (hasTale) totalDice += 1
@@ -226,7 +232,26 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
-              <Label htmlFor="newCharacterCliches">Cliches</Label>
+              <Label htmlFor="newCharacterCliches">
+                Cliches{" "}
+                <Popover>
+                  <PopoverTrigger>
+                    <Image
+                      src="/images/info.svg"
+                      alt="Information Icon"
+                      width="16"
+                      height="16"
+                      className="cursor-pointer"
+                    ></Image>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    {" "}
+                    Your primary Cliché is the one that most clearly expresses how your character
+                    sees himself. May be used by the GM as the default cliche in situations where
+                    none of your character's cliches directly apply.
+                  </PopoverContent>
+                </Popover>
+              </Label>
               {cliches.map((cliche, idx) => (
                 <div key={cliche.id + idx} className="flex-component gap-3 ml-2">
                   <Label htmlFor={`cliche-${cliche.id}`}>Name</Label>
@@ -301,6 +326,84 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
               <Button onClick={(e) => toggleCharacterHook(e)} style={{ maxWidth: "15ch" }}>
                 {hasHook ? "Remove Hook" : "Add Hook"}
               </Button>
+              {hasTale && (
+                <>
+                  <Label htmlFor="newCharacterTale">
+                    Add Tale{" "}
+                    <Popover>
+                      <PopoverTrigger>
+                        <Image
+                          src="/images/info.svg"
+                          alt="Information Icon"
+                          width="16"
+                          height="16"
+                          className="cursor-pointer"
+                        ></Image>
+                      </PopoverTrigger>
+                      <PopoverContent>
+                        {" "}
+                        A Tale is a written “biography” of the character describing his life before
+                        the events of the game. It should tell the reader where the character is
+                        coming from, what he likes and dislikes, how he became who he is, what his
+                        motives are. Some Tales are best written from the player’s omniscient
+                        perspective; others are more fun if written as excerpts from the character’s
+                        own diary. A character with a Tale gets an extra die to play with.
+                      </PopoverContent>
+                    </Popover>
+                  </Label>
+                  <Textarea
+                    id="newCharacterTale"
+                    value={taleText}
+                    onChange={(e) => setTaleText(e.target.value)}
+                    placeholder="Type your character's tale here."
+                    style={{ width: "100%" }}
+                  ></Textarea>
+                </>
+              )}
+              <Button onClick={(e) => toggleCharacterTale(e)} style={{ maxWidth: "15ch" }}>
+                {hasTale ? "Remove Tale" : "Add Tale"}
+              </Button>
+              <Label htmlFor="newCharacterLuckyShots">
+                Lucky Shots{" "}
+                <Popover>
+                  <PopoverTrigger>
+                    <Image
+                      src="/images/info.svg"
+                      alt="Information Icon"
+                      width="16"
+                      height="16"
+                      className="cursor-pointer"
+                    ></Image>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    {" "}
+                    This option allows players to spend some of their starting dice on something
+                    other than Clichés. A single Cliché-die can, instead, buy three Lucky Shots
+                    (spend two dice for six Lucky Shots, and so on). Using a Lucky Shot boosts any
+                    Cliché roll by a single die, for a single die-roll. Lucky Shots “reset” between
+                    game-sessions.
+                  </PopoverContent>
+                </Popover>
+              </Label>
+              <div className="flex-component gap-3">
+                <Image
+                  src="/images/circle-minus.svg"
+                  alt="Decrement Lucky Shots"
+                  width="24"
+                  height="24"
+                  className="cursor-pointer"
+                  onClick={(e) => luckyShots > 0 && setLuckyShots((prev) => prev - 3)}
+                ></Image>
+                <span style={{ fontSize: "large" }}>{luckyShots}</span>
+                <Image
+                  src="/images/circle-plus.svg"
+                  alt="Increment Lucky Shots"
+                  width="24"
+                  height="24"
+                  className="cursor-pointer"
+                  onClick={(e) => diceRemaining > 0 && setLuckyShots((prev) => prev + 3)}
+                ></Image>
+              </div>
               <Button asChild>
                 <input type="submit"></input>
               </Button>
