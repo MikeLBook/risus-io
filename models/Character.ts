@@ -10,6 +10,7 @@ export interface Character {
   hookText: string
   hasTale: boolean
   taleText: string
+  tools: string
   deceased: boolean
   archived: boolean
   createdAt: number
@@ -20,6 +21,11 @@ export interface Cliche {
   id: string
   name: string
   dice: number
-  injury: number
+  injuries: Injury[]
   isPrimary: boolean
+}
+
+export interface Injury {
+  description: string
+  penalty: number
 }

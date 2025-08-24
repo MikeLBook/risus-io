@@ -19,6 +19,11 @@ import Image from "next/image"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Textarea } from "@/components/ui/textarea"
 
+const InjurySchema = z.object({
+  description: z.string().trim(),
+  penalty: z.int(),
+})
+
 const ClicheSchema = z.object({
   id: z.uuid(),
   name: z
@@ -27,7 +32,7 @@ const ClicheSchema = z.object({
     .min(5, { error: "Cliche name must be at least 5 characters" })
     .max(50, { error: "Cliche name should not exceed 50 characters" }),
   dice: z.int().gte(1).lte(4),
-  injury: z.int().gte(0).lte(0),
+  injuries: z.array(InjurySchema).length(0),
   isPrimary: z.boolean(),
 })
 
@@ -45,6 +50,7 @@ const CharacterSchema = z
     hookText: z.string().trim(),
     hasTale: z.boolean(),
     taleText: z.string().trim(),
+    tools: z.string().trim(),
     deceased: z.boolean(),
     archived: z.boolean(),
     createdAt: z.int().positive(),
@@ -92,6 +98,7 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
   const [hookText, setHookText] = useState("")
   const [hasTale, setHasTale] = useState(false)
   const [taleText, setTaleText] = useState("")
+  const [tools, setTools] = useState("")
 
   const { addCharacter } = useCharacters()
 
@@ -107,6 +114,7 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
         luckyShots,
         hasHook,
         hasTale,
+        tools,
         hookText: hasHook ? hookText : "",
         taleText: hasTale ? taleText : "",
         userId: uuidv4(), // authenticated user id
@@ -137,13 +145,14 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
     setHookText("")
     setHasTale(false)
     setTaleText("")
+    setTools("")
   }
 
   const addCliche = (e: any) => {
     e.preventDefault()
     setCliches((prev) => {
       const clonedCliches = structuredClone(prev)
-      clonedCliches.push({ id: uuidv4(), name: "", dice: 1, injury: 0, isPrimary: false })
+      clonedCliches.push({ id: uuidv4(), name: "", dice: 1, injuries: [], isPrimary: false })
       return clonedCliches
     })
   }
@@ -221,14 +230,14 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
               <Label htmlFor="newCharacterName">Name</Label>
               <Input
                 id="newCharacterName"
-                placeholder="Enter Name..."
+                placeholder="Enter Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
               <Label htmlFor="newCharacterDescription">Description</Label>
               <Input
                 id="newCharacterDescription"
-                placeholder="Enter Description..."
+                placeholder="Enter Description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
@@ -259,6 +268,7 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
                     id={`cliche-${cliche.id}`}
                     value={cliche.name}
                     onChange={(e) => onClicheNameChange(cliche.id, e.target.value)}
+                    placeholder="Name your cliche"
                   />
                   <Label htmlFor={`cliche-${cliche.id}-dice`}>Dice</Label>
                   <Input
@@ -275,14 +285,14 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
                       id={`cliche-${cliche.id}-primary`}
                       type="checkbox"
                       checked={cliche.isPrimary}
-                      style={{ width: "25%" }}
+                      style={{ width: "24px" }}
                       onChange={(e) => onClichePrimaryChange(cliche.id, e.target.checked)}
                     ></Input>
                     <Image
                       src="/images/trash.svg"
                       alt="Trash Icon"
-                      width="40"
-                      height="40"
+                      width="24"
+                      height="24"
                       onClick={(e) => onClicheDelete(cliche.id, e)}
                     ></Image>
                   </div>
@@ -320,6 +330,7 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
                     id="newCharacterHook"
                     value={hookText}
                     onChange={(e) => setHookText(e.target.value)}
+                    placeholder="Summarize your hook"
                   ></Input>
                 </>
               )}
@@ -355,7 +366,7 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
                     id="newCharacterTale"
                     value={taleText}
                     onChange={(e) => setTaleText(e.target.value)}
-                    placeholder="Type your character's tale here."
+                    placeholder="Enter your character's tale"
                     style={{ width: "100%" }}
                   ></Textarea>
                 </>
@@ -404,6 +415,34 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
                   onClick={(e) => diceRemaining > 0 && setLuckyShots((prev) => prev + 3)}
                 ></Image>
               </div>
+              <Label htmlFor="newCharacterTools">
+                Add Tools{" "}
+                <Popover>
+                  <PopoverTrigger>
+                    <Image
+                      src="/images/info.svg"
+                      alt="Information Icon"
+                      width="16"
+                      height="16"
+                      className="cursor-pointer"
+                    ></Image>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    {" "}
+                    Tools of the Trade come “free” as part of each Cliché, but they’re vulnerable to
+                    loss or damage, which can (sometimes) cripple or limit the power of the Cliché.
+                    A Hirsute Barbarian, forced into a pit-fight without his trusty blade, can still
+                    rely on his bare hands, but he’ll operate at half-dice until he’s once again
+                    properly armed.
+                  </PopoverContent>
+                </Popover>
+              </Label>
+              <Input
+                id="newCharacterTools"
+                value={tools}
+                onChange={(e) => setTools(e.target.value)}
+                placeholder="Describe your kit"
+              ></Input>
               <Button asChild>
                 <input type="submit"></input>
               </Button>
