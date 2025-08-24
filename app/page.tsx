@@ -42,7 +42,6 @@ export default function Home() {
                     alt="Circle-Plus"
                     width="50"
                     height="50"
-                    color="white"
                   ></Image>
                 </div>
               </GameCard>

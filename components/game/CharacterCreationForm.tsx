@@ -15,6 +15,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { v4 as uuidv4 } from "uuid"
 import { useCharacters } from "@/contexts/charactersContext"
+import Image from "next/image"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
 const ClicheSchema = z.object({
   id: z.uuid(),
@@ -55,9 +57,12 @@ const CharacterSchema = z
     error: "Tale text must be at least 30 character",
     path: ["hasTale", "taleText"],
   })
-  .refine((data) => data.cliches.reduce((acc, cliche) => (cliche.isPrimary ? acc + 1 : acc), 0), {
-    error: "Must have 1 primary cliche",
-  })
+  .refine(
+    (data) => data.cliches.reduce((acc, cliche) => (cliche.isPrimary ? acc + 1 : acc), 0) === 1,
+    {
+      error: "Must have 1 primary cliche",
+    }
+  )
   .refine(
     (data) => {
       let diceRemaining = 10
@@ -160,6 +165,20 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
     )
   }
 
+  const onClicheDelete = (id: string, e: any) => {
+    setCliches((prev) => {
+      const clonedCliches = structuredClone(prev)
+      const index = clonedCliches.findIndex((cliche) => cliche.id === id)
+      clonedCliches.splice(index, 1)
+      return clonedCliches
+    })
+  }
+
+  const toggleCharacterHook = (e: any) => {
+    e.preventDefault()
+    setHasHook((prev) => !prev)
+  }
+
   let totalDice = 10
   if (hasHook) totalDice += 1
   if (hasTale) totalDice += 1
@@ -175,20 +194,22 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
         <DialogContent className="grey-bg" style={{ minWidth: "50vw" }}>
           <DialogTitle>Character Creation</DialogTitle>
           <DialogDescription className="grey-bg">
-            <p>
-              The character Cliché is the heart of Risus. Clichés are shorthand for a kind of
-              person, implying their skills, background, social role and more. The “character
-              classes” of the oldest RPGs are enduring Clichés: Wizard, Detective, Starpilot,
-              Superspy. You can choose Clichés like those for your character, or devise something
-              more outré, like Ghostly Pirate Cook, Fairy Godmother, Bruce Lee (for a character who
-              does Bruce Lee stuff) or Giant Monster Who Just Wants To Be Loved For His Macrame.
-            </p>
-            <p className="mt-2">
-              You start with 10 dice to distribute across your chosen cliches. Dice may also be
-              traded for lucky shots. Hooks and Tales give additional dice.
-            </p>
+            The character Cliché is the heart of Risus. Clichés are shorthand for a kind of person,
+            implying their skills, background, social role and more. The “character classes” of the
+            oldest RPGs are enduring Clichés: Wizard, Detective, Starpilot, Superspy. You can choose
+            Clichés like those for your character, or devise something more outré, like Ghostly
+            Pirate Cook, Fairy Godmother, Bruce Lee (for a character who does Bruce Lee stuff) or
+            Giant Monster Who Just Wants To Be Loved For His Macrame.
+            <br />
+            <br />
+            You start with 10 dice to distribute across your chosen cliches. Dice may also be traded
+            for lucky shots. Hooks and Tales give additional dice.
           </DialogDescription>
-          <DialogHeader>Dice Remaining: {diceRemaining}</DialogHeader>
+          <DialogHeader>
+            <div style={{ marginLeft: "auto", fontSize: "large" }}>
+              Dice Remaining: {diceRemaining}
+            </div>
+          </DialogHeader>
           <form onSubmit={(e) => handleSubmit(e)}>
             <div className="flex-column-component gap-3">
               <Label htmlFor="newCharacterName">Name</Label>
@@ -223,17 +244,62 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
                     value={cliche.dice}
                     onChange={(e) => onClicheDiceChange(cliche.id, e.target.value)}
                   ></Input>
-                  <Label htmlFor={`cliche-${cliche.id}-primary`}>Set Primary</Label>
-                  <Input
-                    id={`cliche-${cliche.id}-primary`}
-                    type="checkbox"
-                    checked={cliche.isPrimary}
-                    onChange={(e) => onClichePrimaryChange(cliche.id, e.target.checked)}
-                  ></Input>
+                  <div className="flex-component gap-2" style={{ width: "40%" }}>
+                    <Label htmlFor={`cliche-${cliche.id}-primary`}>Set Primary</Label>
+                    <Input
+                      id={`cliche-${cliche.id}-primary`}
+                      type="checkbox"
+                      checked={cliche.isPrimary}
+                      style={{ width: "25%" }}
+                      onChange={(e) => onClichePrimaryChange(cliche.id, e.target.checked)}
+                    ></Input>
+                    <Image
+                      src="/images/trash.svg"
+                      alt="Trash Icon"
+                      width="40"
+                      height="40"
+                      onClick={(e) => onClicheDelete(cliche.id, e)}
+                    ></Image>
+                  </div>
                 </div>
               ))}
-              <Button onClick={(e) => addCliche(e)} style={{ maxWidth: "15ch" }}>
-                Add Cliche
+              {diceRemaining > 0 && (
+                <Button onClick={(e) => addCliche(e)} style={{ maxWidth: "15ch" }}>
+                  Add Cliche
+                </Button>
+              )}
+              {hasHook && (
+                <>
+                  <Label htmlFor="newCharacterHook">
+                    Add Hook{" "}
+                    <Popover>
+                      <PopoverTrigger>
+                        <Image
+                          src="/images/info.svg"
+                          alt="Information Icon"
+                          width="16"
+                          height="16"
+                          className="cursor-pointer"
+                        ></Image>
+                      </PopoverTrigger>
+                      <PopoverContent>
+                        {" "}
+                        A Hook is some significant character flaw – a curse, an obsession, a
+                        weakness, a sworn vow, a permanently crippling injury – that makes the
+                        character’s life more interesting (which usually means less pleasant). A
+                        character with a Hook gets an extra die to play with.
+                      </PopoverContent>
+                    </Popover>
+                  </Label>
+                  <Input
+                    id="newCharacterHook"
+                    value={hookText}
+                    onChange={(e) => setHookText(e.target.value)}
+                  ></Input>
+                </>
+              )}
+              <Button onClick={(e) => toggleCharacterHook(e)} style={{ maxWidth: "15ch" }}>
+                {hasHook ? "Remove Hook" : "Add Hook"}
               </Button>
               <Button asChild>
                 <input type="submit"></input>
