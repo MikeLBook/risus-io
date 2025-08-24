@@ -32,11 +32,9 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
             Giant Monster Who Just Wants To Be Loved For His Macrame.
           </DialogDescription>
           <form onSubmit={(e) => handleSubmit(e)}>
-            <DialogClose asChild>
-              <Button asChild>
-                <input type="submit"></input>
-              </Button>
-            </DialogClose>
+            <Button asChild>
+              <input type="submit"></input>
+            </Button>
           </form>
         </DialogContent>
       </Dialog>
