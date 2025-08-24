@@ -230,7 +230,7 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
     <>
       <Dialog>
         <DialogTrigger>{children}</DialogTrigger>
-        <DialogContent className="grey-bg" style={{ minWidth: "50vw" }}>
+        <DialogContent className="grey-bg max-h-screen overflow-auto" style={{ minWidth: "50vw" }}>
           <DialogTitle>Character Creation</DialogTitle>
           <DialogDescription className="grey-bg">
             The character Cliché is the heart of Risus. Clichés are shorthand for a kind of person,
@@ -309,14 +309,15 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
                     max="4"
                     value={cliche.dice}
                     onChange={(e) => onClicheDiceChange(cliche.id, e.target.value)}
+                    style={{ width: "10rem" }}
                   ></Input>
-                  <div className="flex-component gap-2" style={{ width: "40%" }}>
+                  <div className="flex-component gap-2">
                     <Label htmlFor={`cliche-${cliche.id}-primary`}>Set Primary</Label>
                     <Input
                       id={`cliche-${cliche.id}-primary`}
                       type="checkbox"
                       checked={cliche.isPrimary}
-                      style={{ width: "24px" }}
+                      style={{ width: "3rem" }}
                       onChange={(e) => onClichePrimaryChange(cliche.id, e.target.checked)}
                     ></Input>
                     <Image

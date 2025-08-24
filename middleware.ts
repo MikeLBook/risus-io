@@ -35,7 +35,6 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  // Define public routes that don't require authentication
   const publicRoutes = ["/", "/auth/callback"]
 
   // Skip auth check for public routes and static files

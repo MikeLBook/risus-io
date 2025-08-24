@@ -11,18 +11,20 @@ import {
 interface CardProps {
   title: string
   description: string
+  footer?: React.ReactNode
   leftJustify?: boolean
   children: React.ReactNode
 }
 
-export default function GameCard({ title, description, leftJustify, children }: CardProps) {
+export default function GameCard({ title, description, footer, leftJustify, children }: CardProps) {
   return (
     <Card
       style={{
         width: "400px",
-        height: "200px",
+        height: "250px",
         borderColor: "white",
         backgroundColor: "#333",
+        paddingBottom: "0",
       }}
       className="bg-grey"
     >
@@ -35,6 +37,7 @@ export default function GameCard({ title, description, leftJustify, children }: 
         </CardDescription>
       </CardHeader>
       <CardContent style={{ color: "ivory" }}>{children}</CardContent>
+      {footer && <CardFooter style={{ color: "ivory" }}>{footer}</CardFooter>}
     </Card>
   )
 }

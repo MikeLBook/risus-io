@@ -3,7 +3,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogHeader,
   DialogFooter,
   DialogTitle,
   DialogTrigger,
@@ -19,12 +18,11 @@ export default function CharacterSheet({ character, children }: CharacterSheetPr
     <>
       <Dialog>
         <DialogTrigger>{children}</DialogTrigger>
-        <DialogContent className="grey-bg" style={{ minWidth: "50vw" }}>
+        <DialogContent className="grey-bg max-h-screen overflow-auto" style={{ minWidth: "50vw" }}>
           <DialogTitle>{character.name}</DialogTitle>
           <DialogDescription className="grey-bg">{character.description}</DialogDescription>
           <div></div>
-
-          <DialogFooter>Created By: Juy</DialogFooter>
+          <DialogFooter>Created By: {character.creatorName}</DialogFooter>
         </DialogContent>
       </Dialog>
     </>

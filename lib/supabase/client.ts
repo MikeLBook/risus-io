@@ -7,5 +7,4 @@ export function createClient() {
   )
 }
 
-// Create a single instance to use throughout your app
 export const supabase = createClient()

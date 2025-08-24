@@ -5,12 +5,21 @@ interface CharacterCardProps {
   character: Character
 }
 export default function CharacterCard({ character }: CharacterCardProps) {
+  const footer = (
+    <div className="flex-component" style={{ justifyContent: "space-between", width: "100%" }}>
+      <p>Created: {new Date(character.createdAt).toLocaleDateString()}</p>
+      <p>Last Played: {new Date(character.updatedAt).toLocaleDateString()}</p>
+    </div>
+  )
+
   return (
-    <GameCard title={character.name} description={character.description} leftJustify>
-      <div className="flex-component" style={{ justifyContent: "space-between" }}>
-        <p>Created: {new Date(character.createdAt).toLocaleDateString()}</p>
-        <p>Last Played: {new Date(character.updatedAt).toLocaleDateString()}</p>
-      </div>
+    <GameCard
+      title={character.name}
+      description={character.description}
+      footer={footer}
+      leftJustify
+    >
+      {""}
     </GameCard>
   )
 }

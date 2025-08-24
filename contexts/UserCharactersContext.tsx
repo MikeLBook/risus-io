@@ -2,7 +2,7 @@
 
 import { Character } from "@/models/Character"
 import { createClient } from "@/lib/supabase/client"
-import { useAuth } from "@/hooks/useAuth" // Adjust path as needed
+import { useAuth } from "@/hooks/useAuth"
 import { createContext, useContext, useState, useEffect } from "react"
 
 interface IUserCharactersContext {
@@ -27,7 +27,6 @@ export function UserCharactersProvider({ children }: UserCharactersProviderProps
   const addCharacter = async (character: Character) => {
     if (!user) return
 
-    // Add to database
     const { error } = await supabase.from("characters").insert([
       {
         user_id: user.id,
@@ -80,7 +79,7 @@ export function UserCharactersProvider({ children }: UserCharactersProviderProps
         campaignId: row.campaign_id,
         name: row.name,
         description: row.description,
-        cliches: row.cliches || [],
+        cliches: row.cliches,
         luckyShots: row.lucky_shots,
         hasHook: row.has_hook,
         hookText: row.hook_text,
@@ -110,28 +109,7 @@ export function UserCharactersProvider({ children }: UserCharactersProviderProps
           filter: `user_id=eq.${user.id}`,
         },
         (payload) => {
-          if (payload.eventType === "INSERT") {
-            const newCharacter: Character = {
-              id: payload.new.id,
-              userId: payload.new.user_id,
-              creatorName: payload.new.creator_name,
-              campaignId: payload.new.campaign_id,
-              name: payload.new.name,
-              description: payload.new.description,
-              cliches: payload.new.cliches || [],
-              luckyShots: payload.new.lucky_shots,
-              hasHook: payload.new.has_hook,
-              hookText: payload.new.hook_text,
-              hasTale: payload.new.has_tale,
-              taleText: payload.new.tale_text,
-              tools: payload.new.tools,
-              deceased: payload.new.deceased,
-              archived: payload.new.archived,
-              createdAt: payload.new.created_at,
-              updatedAt: payload.new.updated_at,
-            }
-            setCharacters((prev) => [newCharacter, ...prev])
-          }
+          fetchCharacters()
         }
       )
       .subscribe()

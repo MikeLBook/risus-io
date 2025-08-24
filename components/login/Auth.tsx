@@ -8,15 +8,7 @@ export default function Auth() {
 
   const handleDiscordLogin = async () => {
     setLoading(true)
-    const { error } = await signInWithDiscord()
-
-    if (error) {
-      console.error("Error logging in:", error.message)
-      alert("Error logging in with Discord")
-    }
-
-    // Note: We don't set loading to false here because
-    // the user will be redirected to Discord
+    signInWithDiscord()
   }
 
   return (

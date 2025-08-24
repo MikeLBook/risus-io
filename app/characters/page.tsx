@@ -44,7 +44,7 @@ export default function Characters() {
                   title="Create New Character"
                   description="A character can only be part of one campaign at a time"
                 >
-                  <div className="flex-column-component flex-column-centered">
+                  <div className="flex-column-component flex-column-centered mt-5">
                     <Image
                       src="/images/circle-plus.svg"
                       alt="Circle-Plus"
