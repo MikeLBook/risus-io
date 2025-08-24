@@ -134,3 +134,11 @@
   min-width: 100vw;
   min-height: 100vh;
 }
+
+.flex-column-component {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-width: 100%;
+}
