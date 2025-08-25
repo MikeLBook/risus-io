@@ -3,7 +3,13 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useUserCharacters } from "@/contexts/UserCharactersContext"
-import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider } from "@/components/ui/sidebar"
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarHeader,
+  SidebarProvider,
+  SidebarFooter,
+} from "@/components/ui/sidebar"
 import "./characters.css"
 import CharacterCard from "@/components/game/CharacterCard"
 import GameCard from "@/components/game/GameCard"
@@ -24,16 +30,19 @@ export default function Characters() {
       <div style={{ display: "flex" }} className="grey-bg min-w-screen">
         <Sidebar>
           <SidebarHeader className="grey-bg">
-            <strong style={{ fontSize: "large" }}>Game Browser</strong>
+            <strong style={{ fontSize: "large" }}>Active Campaigns</strong>
           </SidebarHeader>
-          <SidebarContent className="grey-bg">
-            <Button asChild style={{ marginLeft: "8px", marginRight: "8px" }}>
-              <Link href="/campaigns/1">Join Game</Link>
+          <SidebarContent className="grey-bg" style={{ justifyContent: "flex-end" }}>
+            <div></div>
+          </SidebarContent>
+          <SidebarFooter className="grey-bg">
+            <Button asChild style={{ margin: "8px" }}>
+              <Link href="/campaigns">Create Campaign</Link>
             </Button>
-            <Button asChild onClick={signOut} style={{ marginLeft: "8px", marginRight: "8px" }}>
+            <Button asChild onClick={signOut} style={{ margin: "8px" }}>
               <Link href="/">Sign Out</Link>
             </Button>
-          </SidebarContent>
+          </SidebarFooter>
         </Sidebar>
         <div>
           <div style={{ marginLeft: "64px", marginTop: "8px" }}>
