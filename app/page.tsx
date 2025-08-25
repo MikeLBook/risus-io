@@ -51,7 +51,7 @@ export default function Home() {
             {user.user_metadata?.full_name && (
               <p className="mb-4">Name: {user.user_metadata.full_name}</p>
             )}
-            <div className="flex-component" style={{ justifyContent: "space-between" }}>
+            <div className="flex-row" style={{ justifyContent: "space-between" }}>
               <Button asChild>
                 <Link href="/characters">View Characters</Link>
               </Button>

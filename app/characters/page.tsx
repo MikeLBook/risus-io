@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { useUserCharacters } from "@/contexts/UserCharactersContext"
+import { useCharacters } from "@/contexts/CharactersContext"
 import {
   Sidebar,
   SidebarContent,
@@ -18,10 +18,18 @@ import CharacterSheet from "@/components/game/CharacterSheet"
 import CharacterCreationForm from "@/components/game/CharacterCreationForm"
 import { useAuth } from "@/hooks/useAuth"
 import { useEffect } from "react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export default function Characters() {
   const { signOut } = useAuth()
-  const { characters } = useUserCharacters()
+  const { characters, filters, toggleUserOnly } = useCharacters()
 
   useEffect(() => console.log("component", characters), [characters])
 
@@ -44,16 +52,28 @@ export default function Characters() {
             </Button>
           </SidebarFooter>
         </Sidebar>
-        <div>
+        <div className="min-w-3/4">
           <div style={{ marginLeft: "64px", marginTop: "8px" }}>
-            <strong style={{ fontSize: "32px" }}>Characters</strong>
+            <div className="flex-row justify-space-between">
+              <strong style={{ fontSize: "32px" }}>Characters</strong>
+              <DropdownMenu>
+                <Button asChild>
+                  <DropdownMenuTrigger>Filters</DropdownMenuTrigger>
+                </Button>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => toggleUserOnly()}>
+                    {filters.userOnly ? "Show All Characters" : "Show My Characters"}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
             <div className="character-cards-container">
               <CharacterCreationForm>
                 <GameCard
                   title="Create New Character"
                   description="A character can only be part of one campaign at a time"
                 >
-                  <div className="flex-column-component flex-column-centered mt-5">
+                  <div className="flex-column align-items-center mt-5">
                     <Image
                       src="/images/circle-plus.svg"
                       alt="Circle-Plus"

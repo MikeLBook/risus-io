@@ -14,7 +14,7 @@ import { toast } from "sonner"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { v4 as uuidv4 } from "uuid"
-import { useUserCharacters } from "@/contexts/UserCharactersContext"
+import { useCharacters } from "@/contexts/CharactersContext"
 import Image from "next/image"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Textarea } from "@/components/ui/textarea"
@@ -110,7 +110,7 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
   const [tools, setTools] = useState("")
 
   const { user } = useAuth()
-  const { addCharacter } = useUserCharacters()
+  const { addCharacter } = useCharacters()
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -250,7 +250,7 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
             </div>
           </DialogHeader>
           <form onSubmit={(e) => handleSubmit(e)}>
-            <div className="flex-column-component gap-3">
+            <div className="flex-column gap-3">
               <Label htmlFor="newCharacterName">Name</Label>
               <Input
                 id="newCharacterName"
@@ -286,7 +286,7 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
                 </Popover>
               </Label>
               {cliches.map((cliche, idx) => (
-                <div key={cliche.id + idx} className="flex-component gap-3 ml-2">
+                <div key={cliche.id + idx} className="flex-row gap-3 ml-2">
                   <Label htmlFor={`cliche-${cliche.id}`}>Name</Label>
                   <Input
                     id={`cliche-${cliche.id}`}
@@ -311,7 +311,7 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
                     onChange={(e) => onClicheDiceChange(cliche.id, e.target.value)}
                     style={{ width: "10rem" }}
                   ></Input>
-                  <div className="flex-component gap-2">
+                  <div className="flex-row gap-2">
                     <Label htmlFor={`cliche-${cliche.id}-primary`}>Set Primary</Label>
                     <Input
                       id={`cliche-${cliche.id}-primary`}
@@ -428,7 +428,7 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
                   </PopoverContent>
                 </Popover>
               </Label>
-              <div className="flex-component gap-3">
+              <div className="flex-row gap-3">
                 <Image
                   src="/images/circle-minus.svg"
                   alt="Decrement Lucky Shots"

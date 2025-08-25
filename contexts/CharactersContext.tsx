@@ -5,23 +5,38 @@ import { createClient } from "@/lib/supabase/client"
 import { useAuth } from "@/hooks/useAuth"
 import { createContext, useContext, useState, useEffect } from "react"
 
-interface IUserCharactersContext {
-  characters: Character[]
-  addCharacter: (character: Character) => Promise<void>
+interface CharacterFilters {
+  userOnly: boolean
+  deceased?: boolean // undefined = all, true = deceased only, false = alive only
 }
 
-const UserCharactersContext = createContext<IUserCharactersContext>({
+interface ICharactersContext {
+  characters: Character[]
+  filters: CharacterFilters
+  addCharacter: (character: Character) => Promise<void>
+  toggleUserOnly: () => void
+  setDeceasedFilter: (deceased?: boolean) => void
+}
+
+const CharactersContext = createContext<ICharactersContext>({
   characters: [],
+  filters: { userOnly: true, deceased: undefined },
   addCharacter: async () => {},
+  toggleUserOnly: () => {},
+  setDeceasedFilter: () => {},
 })
 
-interface UserCharactersProviderProps {
+interface CharactersProviderProps {
   children: React.ReactNode
 }
 
-export function UserCharactersProvider({ children }: UserCharactersProviderProps) {
+export function CharactersProvider({ children }: CharactersProviderProps) {
   const { user } = useAuth()
   const [characters, setCharacters] = useState<Character[]>([])
+  const [filters, setFilters] = useState<CharacterFilters>({
+    userOnly: true,
+    deceased: undefined,
+  })
   const supabase = createClient()
 
   const addCharacter = async (character: Character) => {
@@ -51,28 +66,41 @@ export function UserCharactersProvider({ children }: UserCharactersProviderProps
     }
   }
 
-  // Subscribe to characters created by this user
+  const toggleUserOnly = () => {
+    setFilters((prev) => ({ ...prev, userOnly: !prev.userOnly }))
+  }
+
+  const setDeceasedFilter = (deceased?: boolean) => {
+    setFilters((prev) => ({ ...prev, deceased }))
+  }
+
   useEffect(() => {
     if (!user) {
       setCharacters([])
       return
     }
 
-    // Fetch initial characters
     const fetchCharacters = async () => {
-      const { data, error } = await supabase
-        .from("characters")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
+      let query = supabase.from("characters").select("*")
+
+      if (filters.userOnly && user) {
+        query = query.eq("user_id", user.id)
+      }
+
+      if (filters.deceased !== undefined) {
+        query = query.eq("deceased", filters.deceased)
+      }
+
+      query = query.order("created_at", { ascending: false })
+
+      const { data, error } = await query
 
       if (error) {
         console.error("Error fetching characters:", error)
         return
       }
 
-      // Convert database format to Character interface
-      const mappedCharacters: Character[] = data.map((row) => ({
+      const mappedCharacters: Character[] = (data || []).map((row) => ({
         id: row.id,
         userId: row.user_id,
         creatorName: row.creator_name,
@@ -97,36 +125,36 @@ export function UserCharactersProvider({ children }: UserCharactersProviderProps
 
     fetchCharacters()
 
-    // Set up real-time subscription
-    const channel = supabase
-      .channel("user-characters")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "characters",
-          filter: `user_id=eq.${user.id}`,
-        },
-        (payload) => {
-          fetchCharacters()
-        }
-      )
-      .subscribe()
+    const channel = supabase.channel("characters-subscription").on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "characters",
+      },
+      (payload) => {
+        fetchCharacters()
+      }
+    )
+
+    channel.subscribe()
 
     return () => {
       channel.unsubscribe()
     }
-  }, [user, supabase])
+  }, [user, filters, supabase])
 
   const value = {
     characters,
+    filters,
     addCharacter,
+    toggleUserOnly,
+    setDeceasedFilter,
   }
 
-  return <UserCharactersContext.Provider value={value}>{children}</UserCharactersContext.Provider>
+  return <CharactersContext.Provider value={value}>{children}</CharactersContext.Provider>
 }
 
-export const useUserCharacters = () => useContext(UserCharactersContext)
+export const useCharacters = () => useContext(CharactersContext)
 
-export default UserCharactersContext
+export default CharactersContext
