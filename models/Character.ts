@@ -31,3 +31,5 @@ export interface Injury {
   description: string
   penalty: number
 }
+
+export const NPCUserId = "229f3f30-637c-4943-910d-cf73a0dcc8d3" as const

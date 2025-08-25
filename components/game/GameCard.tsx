@@ -29,15 +29,19 @@ export default function GameCard({ title, description, footer, leftJustify, chil
       className="bg-grey cursor-pointer"
     >
       <CardHeader>
-        <CardTitle style={{ color: "ivory", textAlign: leftJustify ? "start" : "center" }}>
+        <CardTitle
+          style={{ color: "ivory", textAlign: leftJustify ? "start" : "center", height: "15%" }}
+        >
           {title}
         </CardTitle>
-        <CardDescription style={{ color: "ivory", textAlign: leftJustify ? "start" : "center" }}>
+        <CardDescription
+          style={{ color: "ivory", textAlign: leftJustify ? "start" : "center", height: "15%" }}
+        >
           {description}
         </CardDescription>
       </CardHeader>
-      <CardContent style={{ color: "ivory" }}>{children}</CardContent>
-      {footer && <CardFooter style={{ color: "ivory" }}>{footer}</CardFooter>}
+      <CardContent style={{ color: "ivory", height: "55%" }}>{children}</CardContent>
+      {footer && <CardFooter style={{ color: "ivory", height: "15%" }}>{footer}</CardFooter>}
     </Card>
   )
 }
