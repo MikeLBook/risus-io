@@ -134,12 +134,19 @@
 .flex-column {
   display: flex;
   flex-direction: column;
+  align-items: center;
+}
+
+.justify-center {
   justify-content: center;
-  min-width: 100%;
 }
 
 .justify-space-between {
   justify-content: space-between;
+}
+
+.justify-end {
+  justify-content: flex-end;
 }
 
 .align-items-center {

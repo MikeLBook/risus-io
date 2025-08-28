@@ -4,6 +4,7 @@ import "./globals.css"
 import { Toaster } from "@/components/ui/sonner"
 import { AuthProvider } from "@/hooks/useAuth"
 import { CharactersProvider } from "@/contexts/CharactersContext"
+import { CampaignProvider } from "@/contexts/CampaignContext"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,9 +28,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}>
         <AuthProvider>
-          <CharactersProvider>{children}</CharactersProvider>
+          <CharactersProvider>
+            <CampaignProvider>{children}</CampaignProvider>
+          </CharactersProvider>
           <Toaster />
         </AuthProvider>
       </body>

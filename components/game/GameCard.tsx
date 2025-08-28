@@ -13,20 +13,32 @@ interface CardProps {
   description: string
   footer?: React.ReactNode
   leftJustify?: boolean
+  width?: string
+  height?: string
+  disableCursor?: boolean
   children: React.ReactNode
 }
 
-export default function GameCard({ title, description, footer, leftJustify, children }: CardProps) {
+export default function GameCard({
+  title,
+  description,
+  footer,
+  leftJustify,
+  width,
+  height,
+  disableCursor,
+  children,
+}: CardProps) {
   return (
     <Card
       style={{
-        width: "400px",
-        height: "250px",
+        width: width || "400px",
+        height: height || "250px",
         borderColor: "white",
         backgroundColor: "#333",
         paddingBottom: "0",
       }}
-      className="bg-grey cursor-pointer"
+      className={`bg-grey ${disableCursor ? "" : "cursor-pointer"}`}
     >
       <CardHeader>
         <CardTitle

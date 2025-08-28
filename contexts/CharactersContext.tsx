@@ -62,7 +62,7 @@ export function CharactersProvider({ children }: CharactersProviderProps) {
     ])
 
     if (error) {
-      console.error("Error adding character:", error)
+      console.error("Error adding character: ", error)
     }
   }
 

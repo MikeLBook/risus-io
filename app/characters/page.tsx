@@ -17,21 +17,16 @@ import Image from "next/image"
 import CharacterSheet from "@/components/game/CharacterSheet"
 import CharacterCreationForm from "@/components/game/CharacterCreationForm"
 import { useAuth } from "@/hooks/useAuth"
-import { useEffect } from "react"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
 export default function Characters() {
   const { signOut } = useAuth()
   const { characters, filters, toggleUserOnly } = useCharacters()
-
-  useEffect(() => console.log("component", characters), [characters])
 
   return (
     <SidebarProvider defaultOpen={true}>

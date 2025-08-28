@@ -12,7 +12,7 @@ export interface Campaign {
   // Game state fields
   gameMode: GameMode
   gameData: GameModeData
-  luckyShot: LuckyShotAllotments
+  luckyShots: LuckyShotAllotments
 }
 
 export interface LuckyShotAllotments {
@@ -25,7 +25,7 @@ export type GameModeData = GMControlData | TargetRollData | ContestedRollData | 
 
 export interface GMControlData {
   type: "GM_CONTROL"
-  phase: "NARRATIVE" | "PREP" | "WAITING"
+  phase: "NARRATIVE" | "PREP" | "WAITING" | "PLAYING"
   title?: string // e.g. "Setting the Scene", "Planning encounter"
 }
 

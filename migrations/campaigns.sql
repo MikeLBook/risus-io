@@ -8,7 +8,7 @@ CREATE TABLE campaigns (
   updated_date BIGINT NOT NULL DEFAULT extract(epoch from now()) * 1000,
   game_mode TEXT NOT NULL CHECK (game_mode IN ('GM_CONTROL', 'TARGET_ROLL', 'CONTESTED_ROLL', 'COMBAT')),
   game_data JSONB NOT NULL,
-  lucky_shot JSONB NOT NULL DEFAULT '{}'::jsonb
+  lucky_shots JSONB NOT NULL DEFAULT '{}'::jsonb
 );
 
 CREATE INDEX idx_campaigns_dm_id ON campaigns(dm_id);

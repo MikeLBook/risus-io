@@ -1,3 +1,5 @@
+"use client"
+
 interface CampaignProps {
   params: Promise<{ slug: string }>
 }

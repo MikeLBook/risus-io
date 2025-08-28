@@ -476,7 +476,7 @@ export default function CharacterCreationForm({ children }: CharacterCreationPro
                 placeholder="Describe your kit"
               ></Input>
               <Button asChild>
-                <input type="submit"></input>
+                <input type="submit" value="Create Character"></input>
               </Button>
             </div>
           </form>
